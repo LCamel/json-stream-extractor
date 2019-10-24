@@ -27,22 +27,45 @@ public class JsonExtractor {
             // the array element: an object
             // [ ... {...} ... {...} ... ]
             //        ^
+            anObjectElement:
             while (true) {
-                int b = is.read();
-                if (b == '{') {
-                    os.write(b);
-                    braces++;
-                } else if (b == '}') {
-                    os.write(b);
-                    braces--;
-                    if (braces == 0) {
-                        os.write('\n');
+                // { ... "..." ... "..." }
+                //   ^
+                while (true) {
+                    int b = is.read();
+                    if (b == '{') {
+                        os.write(b);
+                        braces++;
+                    } else if (b == '}') {
+                        os.write(b);
+                        braces--;
+                        if (braces == 0) {
+                            os.write('\n');
+                            break anObjectElement;
+                        }
+                    } else if (b == ' ' || b == '\n' || b == '\r' || b == '\t') {
+                        // just skip them
+                    } else if (b == '"') {
+                        os.write(b);
+                        break;
+                    } else {
+                        os.write(b);
+                    }
+                }
+                // ... "..." ...
+                //      ^
+                while (true) {
+                    int b = is.read();
+                    os.write(b);        // output the whole string as-is
+
+                    if (b == '"') {
                         break;
                     }
-                } else if (b == ' ' || b == '\n' || b == '\r' || b == '\t') {
-                    // just skip them
-                } else {
-                    os.write(b);
+
+                    if (b == '\\') {
+                        b = is.read();  // consume the next byte (even for \ u )
+                        os.write(b);
+                    }
                 }
             }
         }

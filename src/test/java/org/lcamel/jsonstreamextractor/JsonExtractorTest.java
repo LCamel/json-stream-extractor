@@ -19,12 +19,28 @@ class JsonExtractorTest {
         driveExtractArrayOfObjects(" { \"foo\": 3 }, { \"bar\": 4 } } ]", "{\"foo\":3}\n{\"bar\":4}\n");
     }
 
-    private static void driveExtractArrayOfObjects(String input, String output) throws IOException {
+    @Test
+    void testString() throws IOException {
+        driveExtractArrayOfObjects(" { \"foo\": \"abc def\" }, { \"bar \": 4 } } ]", "{\"foo\":\"abc def\"}\n{\"bar \":4}\n");
+    }
+
+    @Test
+    void testBraceInString() throws IOException {
+        driveExtractArrayOfObjects(" { \"foo\": \"abc}\" }, { \"bar\": 4 } } ]", "{\"foo\":\"abc}\"}\n{\"bar\":4}\n");
+        driveExtractArrayOfObjects(" { \"foo\": \"abc{\" }, { \"bar\": 4 } } ]", "{\"foo\":\"abc{\"}\n{\"bar\":4}\n");
+    }
+    @Test
+    void testEscape() throws IOException {
+        driveExtractArrayOfObjects(" { \"foo\": \"abc\\\"\" }, { \"bar\": 4 } } ]", "{\"foo\":\"abc\\\"\"}\n{\"bar\":4}\n");
+    }
+
+    private static void driveExtractArrayOfObjects(String input, String expected) throws IOException {
         try (InputStream is = new ByteArrayInputStream(
                 input.getBytes(StandardCharsets.UTF_8));
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(10000)) {
             JsonExtractor.extractArrayOfObjects(is, baos);
-            assertArrayEquals(baos.toByteArray(), output.getBytes(StandardCharsets.UTF_8));
+            assertArrayEquals(baos.toByteArray(), expected.getBytes(StandardCharsets.UTF_8));
+            //assertEquals(expected, new String(baos.toByteArray()));
         }
     }
 }
