@@ -16,11 +16,15 @@ import org.junit.jupiter.api.Test;
 class JsonExtractorTest {
     @Test
     void testExtractArrayObjects() throws IOException {
+        driveExtractArrayOfObjects(" { \"foo\": 3 }, { \"bar\": 4 } } ]", "{\"foo\":3}\n{\"bar\":4}\n");
+    }
+
+    private static void driveExtractArrayOfObjects(String input, String output) throws IOException {
         try (InputStream is = new ByteArrayInputStream(
-                " { \"foo\": 3 }, { \"bar\": 4 } } ]".getBytes(StandardCharsets.UTF_8));
+                input.getBytes(StandardCharsets.UTF_8));
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(10000)) {
             JsonExtractor.extractArrayOfObjects(is, baos);
-            assertArrayEquals(baos.toByteArray(), "{\"foo\":3}\n{\"bar\":4}\n".getBytes(StandardCharsets.UTF_8));
+            assertArrayEquals(baos.toByteArray(), output.getBytes(StandardCharsets.UTF_8));
         }
     }
 }
