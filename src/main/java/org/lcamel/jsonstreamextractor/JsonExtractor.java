@@ -71,4 +71,40 @@ public class JsonExtractor {
         }
 
     }
+
+    // { ... "foo"
+    //   ^   ^
+    public static void findObjectKeyBegin(InputStream is, OutputStream os) throws IOException {
+        // find the first " or ]
+        while (true) {
+            int b = is.read();
+            if (b == '"') {
+                break;
+            } else if (b == ']') {
+                // WE ARE DONE?!
+            }
+        }
+
+        // now we are at the beginning of the string
+        // "foo"
+        //  ^
+        // try to do matches here
+
+        // now we are after the closing double quote
+        // "foo"
+        //      ^
+        // if the key matches, then do something (maybe return "found" ?)
+        // else skip the value
+
+        // how to skip the value ?
+        // find the first non-whitespace byte
+        // case [ : find the matching ] (mind the "")
+        // case { : find the matching } (mind the "")
+        // case " :
+        // case else : find , or }
+
+
+
+
+    }
 }

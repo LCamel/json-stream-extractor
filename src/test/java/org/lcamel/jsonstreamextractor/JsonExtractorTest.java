@@ -10,13 +10,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 import org.junit.jupiter.api.Test;
 
 class JsonExtractorTest {
     @Test
     void testExtractArrayObjects() throws IOException {
-        driveExtractArrayOfObjects(" { \"foo\": 3 }, { \"bar\": 4 } } ]", "{\"foo\":3}\n{\"bar\":4}\n");
+        testResources("/array_elements_simple");
     }
 
     @Test
@@ -34,6 +35,19 @@ class JsonExtractorTest {
         driveExtractArrayOfObjects(" { \"foo\": \"abc\\\"\" }, { \"bar\": 4 } } ]", "{\"foo\":\"abc\\\"\"}\n{\"bar\":4}\n");
     }
 
+
+    void testResources(String resourceName) throws IOException {
+        try (InputStream is = this.getClass().getResourceAsStream(resourceName);
+                Scanner scanner = new Scanner(is);
+                ) {
+            scanner.useDelimiter("====\n");
+            String input = scanner.next();
+            System.out.println("input ##" + input + "##");
+            String expected = scanner.next();
+            System.out.println("expected ##" + expected + "##");
+            driveExtractArrayOfObjects(input, expected);
+        }
+    }
     private static void driveExtractArrayOfObjects(String input, String expected) throws IOException {
         try (InputStream is = new ByteArrayInputStream(
                 input.getBytes(StandardCharsets.UTF_8));
